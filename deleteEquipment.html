@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Equipment</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="css.css">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
+    <style>
+        html,body,h1,h2,h3,h4,h5,h6,p,p1,p2 {font-family: "Roboto", sans-serif}
+    </style>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: 'GET',
+                dataType: 'JSON',
+                url: 'https://htcs5607isap.herokuapp.com/api/equipment/',
+                success: function (data) {
+                    console.log(data);
+                    i = 0;
+                    while (i < data.length) {
+                        equipments = data[i];
+                        $("#show_equipment").append("" +
+                            "<option value='" +
+                            equipment.equipmentID + "'>" +
+                            equipment.equipmentTypeID +
+                            "</option>");
+
+                        i++;
+                    }
+                    $("#show_equipment").change(function () {
+                        equipmentID = $("#show_equipment").val();
+                        getequipment(equipmentID);
+                    });
+
+                    $("#delete_but").click(function () {
+
+                        if ($("#show_equipment").val() == "") {
+
+                            $("#equipmentSelectionError").text("Please select a piece of equipment");
+                        } else {
+                            equipmentID = $("#show_equipment").val();
+                            deleteequipment(equipmentID);
+                        }
+
+                    });
+                },
+                error, function (err) {
+                    console.log(err);
+                }
+            });
+        });
+
+        function getequipment(equipmentID) {
+            $.ajax({
+                type: 'GET',
+                dataType: 'JSON',
+                url: 'https://htcs5607isap.herokuapp.com/api/equipment/' + equipmentID + '/',
+                success: function (data) {
+                    console.log(data);
+                    equipment = data;
+                    $("#equipmentID_equipmentID_input").val(equipment.equipmentID); 
+                    $("#description_description_input").val(description.description);               
+
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        function deleteequipment(equipmentID) {
+            $.ajax({
+                type: 'DELETE',
+                dataType: 'JSON',
+                url: 'https://htcs5607isap.herokuapp.com/api/equipment/' + equipmentID + '/',
+                success: function (data) {
+                    console.log(data);
+                },
+
+                success: function (data) {
+                    alert('equipment deleted successfully');
+                    if (confirm('Delete more equipment?')) {
+                        equipment.reload();
+                    } else {
+                        console.log("");
+                        window.equipment.href = "divisionsMenu.html";
+                    }
+                    equipment.reload();
+                },
+
+                error: function (err) {
+                    console.log(err);
+                    errors = JSON.parse(err.responseText);
+                    console.log(errors);
+                    $("#equipmentID_input_err").text(errors.equipmentID);
+                    $("#description_input_err").text(errors.description);
+            }},
+            )};
+    </script>
+</head>
+
+<body>
+    <h1>Delete Equipment</h1>
+    <form onsubmit="return false">
+        <p id="equipmentelectionError"></p>
+        <p>
+            <label>Equipment ID</label>
+            <select id="show_equipmentTypeID">
+                <option value="">Please select a piece of equipment</option>
+            </select>
+        </p>
+        <p>
+            <label>Equipment Type Description </label>
+            <input id="equipment_description_input" type="text">
+        </p>
+        <p><button class="modernButton" id="delete_but">Delete Equipment</button>
+            <button class="modernButtonCancel"><a href="divisionsMenu.html">Cancel</a></button></p>
+    </form>
+</body>
+
+</html>
